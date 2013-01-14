@@ -1,14 +1,15 @@
 package com.gromholl.dots.shared;
 
-public class DotsMap {
+public class GameMap {
     
-    public DotsMapCell map[][];
+    public GameMapCell map[][];
     
-    public DotsMap(int x, int y) {
-        map = new DotsMapCell[x][y];
+    public GameMap(int x, int y) {
+        
+        map = new GameMapCell[x][y];
         for(int i = 0; i < map.length; i++) {
             for(int j = 0; j < map[i].length; j++) {
-                map[i][j] = new DotsMapCell();
+                map[i][j] = new GameMapCell();
             }            
         }
     }
@@ -23,11 +24,7 @@ public class DotsMap {
             return 0;
     }
 
-    public int getCellOwner(int x, int y) {
-        return map[x][y].getOwner(); 
+    public GameMapCell getCell(int x, int y) {
+        return map[x][y]; 
     }
-    public boolean getCellStatus(int x, int y) {
-        return map[x][y].isFree(); 
-    }
-    
 }
