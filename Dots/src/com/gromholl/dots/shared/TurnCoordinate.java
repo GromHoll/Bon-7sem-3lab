@@ -1,5 +1,6 @@
 package com.gromholl.dots.shared;
 
+
 public class TurnCoordinate {
     
     public int x;
@@ -13,5 +14,19 @@ public class TurnCoordinate {
     public TurnCoordinate() {
         this(0, 0);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        
+        TurnCoordinate tc = (TurnCoordinate) obj;        
+        return x == tc.x && y == tc.y;
+    }
+
     
 }

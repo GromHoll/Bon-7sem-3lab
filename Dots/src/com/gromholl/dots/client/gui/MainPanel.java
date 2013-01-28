@@ -2,6 +2,7 @@ package com.gromholl.dots.client.gui;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -11,24 +12,25 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
+
+import com.gromholl.dots.shared.GameLobby;
 
 public class MainPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private GameListTableModel glModel;
     private JTable table;
 
-    JButton btnRefresh;    
-    JButton btnJoin;    
-    JButton btnCreate;    
-    JButton btnStatistic;    
-    JButton btnLogout;
+    private JButton btnRefresh;    
+    private JButton btnJoin;    
+    private JButton btnCreate;    
+    private JButton btnStatistic;    
+    private JButton btnLogout;
     
     /**
      * Create the panel.
      */
-    @SuppressWarnings("serial")
     public MainPanel() {
         
         JScrollPane scrollPane = new JScrollPane();
@@ -74,29 +76,10 @@ public class MainPanel extends JPanel {
         );
         groupLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] {btnRefresh, btnJoin, btnCreate, btnStatistic, btnLogout});
         
-        table = new JTable();
-        table.setModel(new DefaultTableModel(
-            new Object[][] {
-            },
-            new String[] {
-                "Game ID", "Map Size", "Turn Time", "Extra Turn", "Player Count", "Players"
-            }
-        ) {
-            @SuppressWarnings("rawtypes")
-            Class[] columnTypes = new Class[] {
-                Integer.class, String.class, Integer.class, Boolean.class, String.class, String.class
-            };
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            public Class getColumnClass(int columnIndex) {
-                return columnTypes[columnIndex];
-            }
-            boolean[] columnEditables = new boolean[] {
-                false, false, false, false, false, false
-            };
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        });
+        glModel = new GameListTableModel();
+        
+        table = new JTable(glModel);
+        
         table.getColumnModel().getColumn(5).setPreferredWidth(300);
         scrollPane.setViewportView(table);
         setLayout(groupLayout);
@@ -106,26 +89,30 @@ public class MainPanel extends JPanel {
     public void addActionListenerForRefreshButton(ActionListener l) {
         if(l != null)
             btnRefresh.addActionListener(l);
-    }
-    
+    }    
     public void addActionListenerForJoinButton(ActionListener l) {
         if(l != null)
             btnJoin.addActionListener(l);
-    }
-    
+    }    
     public void addActionListenerForCreateButton(ActionListener l) {
         if(l != null)
             btnCreate.addActionListener(l);
-    }
-    
+    }    
     public void addActionListenerForStatisticButton(ActionListener l) {
         if(l != null)
             btnStatistic.addActionListener(l);
-    }
-    
+    }    
     public void addActionListenerForLogoutButton(ActionListener l) {
         if(l != null)
             btnLogout.addActionListener(l);
+    }
+    
+    public void setGameList(ArrayList<GameLobby> gll) {
+        glModel.setGameList(gll);
+    }
+    
+    public Integer getSelectedGameID() {
+        return glModel.getID(table.getSelectedRow());
     }
     
 }

@@ -4,14 +4,20 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.gromholl.dots.server.db.DBController;
+
 public class ThreadController {
 
-    // DB connect
+    public static final String DB_DEF_FILE = "users.db";    
+    private DBController dbController;
+    private LobbyController lobbyController;
     
     private List<ClientThread> threads;
     
     public ThreadController() {
         threads = new LinkedList<ClientThread>();
+        dbController = new DBController(DB_DEF_FILE);
+        lobbyController = new LobbyController();
     }
     
     public void subscribe(Socket s) {
@@ -21,11 +27,6 @@ public class ThreadController {
         threads.add(ct);
         ct.start();
     }
-    
-    public void unsubscribe(ClientThread clientThread) {
-        System.out.println("Client thread leave.");
-    }
-    
     public void unsubscribeAll() {
         
         for(ClientThread ct : threads) {
@@ -34,5 +35,11 @@ public class ThreadController {
         
         threads.clear();
     }
-    
+
+    public DBController getDBController() {
+        return dbController;
+    }    
+    public LobbyController getLobbyController() {
+        return lobbyController;
+    }
 }

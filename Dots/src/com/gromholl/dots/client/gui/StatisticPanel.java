@@ -13,6 +13,8 @@ import javax.swing.JProgressBar;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
+import com.gromholl.dots.shared.PlayerStatistic;
+
 public class StatisticPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -140,5 +142,36 @@ public class StatisticPanel extends JPanel {
     public void addActionListenerForBackButton(ActionListener l) {
         if(l != null)
             btnBack.addActionListener(l);
+    }
+    
+    public void setStatistic(PlayerStatistic statistic) {
+        
+        lblUsername.setText(statistic.getNickname());        
+        
+        lblTotalCount.setText(statistic.play.toString());
+        
+        if(statistic.draw != 0) {
+            lblDrawCount.setText(statistic.draw + " ( " + statistic.draw*100/statistic.play + "% )");
+            prbDraw.setValue(statistic.draw*100/statistic.play);
+        } else {
+            lblDrawCount.setText("none");
+            prbDraw.setValue(0);            
+        }
+        
+        if(statistic.lose != 0) {
+            lblLoseCount.setText(statistic.lose + " ( " + statistic.lose*100/statistic.play + "% )");
+            prbLose.setValue(statistic.lose*100/statistic.play);
+        } else {
+            lblLoseCount.setText("none");
+            prbLose.setValue(0);            
+        }
+        
+        if(statistic.win != 0) {
+            lblWinCount.setText(statistic.win + " ( " + statistic.win*100/statistic.play + "% )");
+            prbWin.setValue(statistic.win*100/statistic.play);
+        } else {
+            lblWinCount.setText("none");
+            prbWin.setValue(0);            
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.gromholl.dots.client.gui;
 
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -12,6 +13,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
+
+import com.gromholl.dots.shared.Packet;
 
 public class LoginPanel extends JPanel {
 
@@ -95,12 +98,11 @@ public class LoginPanel extends JPanel {
         if(l != null)
             btnLogin.addActionListener(l);
     }
-    
     public void addActionListenerForRegButton(ActionListener l) {
         if(l != null)
             btnRegistration.addActionListener(l);
     }
-    
+
     public void setMessage(String msg) {
         if(msg != null)
             lblMessage.setText(msg);
@@ -109,11 +111,11 @@ public class LoginPanel extends JPanel {
     public String getLogin() {
         return tfLogin.getText();
     }
-    public String getPassword() {
+    private String getPassword() {
         return new String(pfPassword.getPassword());
     }
     
-    public boolean isFillField() {
+    private boolean isFillField() {
         if(getLogin().isEmpty() || getPassword().isEmpty()) {
             setMessage("Fill all field.");
             return false;
@@ -121,15 +123,30 @@ public class LoginPanel extends JPanel {
             return true;
         }
     }
-    
-    public boolean isValidField() {
+    private boolean isValidField() {
         if(getLogin().indexOf(' ') != -1 || getPassword().indexOf(' ') != -1) {
             setMessage("Login and password can't contain spases.");
             return false;
         } else {
             return true;
-        }        
+        }
     }
     
-    
+    public Packet getLoginPacket() {
+        
+        Packet res = null;
+        
+        if(!isFillField())
+            return res;        
+        if(!isValidField())
+            return res;
+        
+        res = new Packet(Packet.PACKET_CODES.LOGIN_CMD);
+        HashMap<String, String> data = new HashMap<String, String>();
+        data.put(Packet.LOGIN_KEY, getLogin());
+        data.put(Packet.PASSWORD_KEY, getPassword());
+        res.setData(data);
+        
+        return res;
+    }
 }

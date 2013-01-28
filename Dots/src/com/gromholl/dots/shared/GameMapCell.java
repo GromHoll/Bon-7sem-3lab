@@ -9,8 +9,8 @@ public class GameMapCell {
     
     public static final int WITHOUT_OWNER_OPT = 0;
     
-    private boolean status;
-    private int owner;
+    public boolean status;
+    public int owner;
 
     public GameMapCell(int code) {
         this.setCode(code);
@@ -25,12 +25,6 @@ public class GameMapCell {
         this.status = FREE_OPT;
     }
 
-    public boolean isFree() {
-        return status;
-    }
-    public int getOwner() {
-        return owner;
-    }
     public int getCode() {
 
         int res = owner;        
@@ -44,12 +38,6 @@ public class GameMapCell {
         return res;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-    public void setOwner(int owner) {
-        this.owner = owner;
-    }
     public void setInfo(int owner, boolean status) {
         this.owner = owner;
         this.status = status;
@@ -72,6 +60,5 @@ public class GameMapCell {
             this.owner = WITHOUT_OWNER_OPT;
             this.status = FREE_OPT;
         }
-    }
-    
+    }    
 }

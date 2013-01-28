@@ -2,6 +2,7 @@ package com.gromholl.dots.client.gui;
 
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -12,6 +13,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
+
+import com.gromholl.dots.shared.Packet;
 
 public class RegistrationPanel extends JPanel {
 
@@ -107,7 +110,6 @@ public class RegistrationPanel extends JPanel {
         if(l != null)
             btnBack.addActionListener(l);
     }
-    
     public void addActionListenerForRegButton(ActionListener l) {
         if(l != null)
             btnRegistration.addActionListener(l);
@@ -121,22 +123,21 @@ public class RegistrationPanel extends JPanel {
     public String getLogin() {
         return tfLogin.getText();
     }
-    public String getPassword() {
+    private String getPassword() {
         return new String(pfPassword.getPassword());
     }
-    public String getConfirmPassword() {
+    private String getConfirmPassword() {
         return new String(pfConfirm.getPassword());
     }
     
-    public boolean isValidPassword() {
+    private boolean isValidPassword() {
         
         String pass1 = new String(pfPassword.getPassword());
         String pass2 = new String(pfConfirm.getPassword());
         
         return (pass1.equals(pass2));
     }
-    
-    public boolean isFillField() {
+    private boolean isFillField() {
         if(getLogin().isEmpty() || getPassword().isEmpty() || getConfirmPassword().isEmpty()) {
             setMessage("Fill all field.");
             return false;
@@ -144,8 +145,7 @@ public class RegistrationPanel extends JPanel {
             return true;
         }
     }
-    
-    public boolean isValidField() {
+    private boolean isValidField() {
         if(getLogin().indexOf(' ') != -1 || getPassword().indexOf(' ') != -1 || getConfirmPassword().indexOf(' ') != -1) {
             setMessage("Login and password can't contain spases.");
             return false;
@@ -157,6 +157,24 @@ public class RegistrationPanel extends JPanel {
                 return false;
             }
         }        
+    }
+    
+    public Packet getRegPacket() {
+        
+        Packet res = null;
+        
+        if(!isFillField())
+            return res;        
+        if(!isValidField())
+            return res;
+        
+        res = new Packet(Packet.PACKET_CODES.REGISTRATION_CMD);
+        HashMap<String, String> data = new HashMap<String, String>();
+        data.put(Packet.LOGIN_KEY, getLogin());
+        data.put(Packet.PASSWORD_KEY, getPassword());
+        res.setData(data);
+        
+        return res;
     }
     
 }

@@ -33,6 +33,7 @@ public class Packet {
         public static final String LEAVE_GAME_CMD         = "FIN"; 
         public static final String MAKE_TURN_CMD          = "TRN"; 
         public static final String FINISH_GAME_CMD        = "SRD";
+        public static final String UPDATE_CMD             = "UPD";
         
         /* Packet's commands */       
         public static final String NUM_PLAYED_GAME = "NPG";
@@ -53,25 +54,29 @@ public class Packet {
         public static final String GAME_AREA_LINE = "GAL";
     }
     
-    public static final Packet SUCCESS_PACKET = new Packet(PACKET_CODES.SUCCESS_CODE);
+    public static final String LOGIN_KEY = "Login";
+    public static final String PASSWORD_KEY = "Password";
     
-    public static final Packet ERROR_400_PACKET = new Packet(PACKET_CODES.USER_ALREADY_EXIST_CODE);
-    public static final Packet ERROR_401_PACKET = new Packet(PACKET_CODES.INCORRECT_COMMAND_CODE);
-    public static final Packet ERROR_402_PACKET = new Packet(PACKET_CODES.SERVER_ERROR_CODE);
-    public static final Packet ERROR_403_PACKET = new Packet(PACKET_CODES.LOGIN_ERROR_CODE);
-    public static final Packet ERROR_404_PACKET = new Packet(PACKET_CODES.USER_NOT_SINGING_UP_CODE);
-    public static final Packet ERROR_405_PACKET = new Packet(PACKET_CODES.GAME_NOT_EXIST_CODE);
-    public static final Packet ERROR_406_PACKET = new Packet(PACKET_CODES.GAME_IS_FULL_CODE);
-    public static final Packet ERROR_407_PACKET = new Packet(PACKET_CODES.CANNOT_LEAVE_GAME_CODE);
-    public static final Packet ERROR_408_PACKET = new Packet(PACKET_CODES.INCORRECT_TURN_CODE);    
+    private static final Packet SUCCESS_PACKET = new Packet(PACKET_CODES.SUCCESS_CODE);
+    
+    private static final Packet ERROR_400_PACKET = new Packet(PACKET_CODES.USER_ALREADY_EXIST_CODE);
+    private static final Packet ERROR_401_PACKET = new Packet(PACKET_CODES.INCORRECT_COMMAND_CODE);
+    private static final Packet ERROR_402_PACKET = new Packet(PACKET_CODES.SERVER_ERROR_CODE);
+    private static final Packet ERROR_403_PACKET = new Packet(PACKET_CODES.LOGIN_ERROR_CODE);
+    private static final Packet ERROR_404_PACKET = new Packet(PACKET_CODES.USER_NOT_SINGING_UP_CODE);
+    private static final Packet ERROR_405_PACKET = new Packet(PACKET_CODES.GAME_NOT_EXIST_CODE);
+    private static final Packet ERROR_406_PACKET = new Packet(PACKET_CODES.GAME_IS_FULL_CODE);
+    private static final Packet ERROR_407_PACKET = new Packet(PACKET_CODES.CANNOT_LEAVE_GAME_CODE);
+    private static final Packet ERROR_408_PACKET = new Packet(PACKET_CODES.INCORRECT_TURN_CODE);    
 
-    public static final Packet LOGOUT_PACKET = new Packet(PACKET_CODES.LOGOUT_CMD);
-    public static final Packet STATISTIC_PACKET = new Packet(PACKET_CODES.GET_USER_STATISTIC_CMD);
-    public static final Packet GAME_LIST_PACKET = new Packet(PACKET_CODES.GET_GAME_LIST_CMD);
-    public static final Packet LEAVE_GAME_PACKET = new Packet(PACKET_CODES.LEAVE_GAME_CMD);
-    public static final Packet FINISH_GAME = new Packet(PACKET_CODES.FINISH_GAME_CMD);
+    private static final Packet LOGOUT_PACKET = new Packet(PACKET_CODES.LOGOUT_CMD);
+    private static final Packet STATISTIC_PACKET = new Packet(PACKET_CODES.GET_USER_STATISTIC_CMD);
+    private static final Packet GAME_LIST_PACKET = new Packet(PACKET_CODES.GET_GAME_LIST_CMD);
+    private static final Packet LEAVE_GAME_PACKET = new Packet(PACKET_CODES.LEAVE_GAME_CMD);
+    private static final Packet FINISH_GAME_PACKET = new Packet(PACKET_CODES.FINISH_GAME_CMD);
+    private static final Packet UPDATE_PACKET = new Packet(PACKET_CODES.UPDATE_CMD);
 
-    public static final Packet GAME_STATE_CHANGE_PACKET = new Packet(PACKET_CODES.GAME_STATE_CHANGE_CMD);    
+    private static final Packet GAME_STATE_CHANGE_PACKET = new Packet(PACKET_CODES.GAME_STATE_CHANGE_CMD);    
     
     
     private String code;
@@ -136,10 +141,13 @@ public class Packet {
         return LEAVE_GAME_PACKET;
     }
     public static Packet getFinishGamePacket() {
-        return FINISH_GAME;
+        return FINISH_GAME_PACKET;
     }
     public static Packet getGameStateChangePacket() {
         return GAME_STATE_CHANGE_PACKET;
+    }
+    public static Packet getUpdatePacket() {
+        return UPDATE_PACKET;
     }
     
 }

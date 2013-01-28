@@ -12,7 +12,7 @@ public class PacketManager {
     public static Packet unpack(String packet) {
         
         Packet res = null;
-                
+        
         if(packet != null) {
             
             if(packet.length() < 3)
@@ -93,11 +93,13 @@ public class PacketManager {
                 res = getMakeTurnPacket(packet);
                 
             } else if(code.equals(Packet.PACKET_CODES.FINISH_GAME_CMD)) {
-                res = Packet.getFinishGamePacket(); 
+                res = Packet.getFinishGamePacket();
                 
+            } else if(code.equals(Packet.PACKET_CODES.UPDATE_CMD)) {
+                res = Packet.getUpdatePacket();
             }
             
-        }        
+        }
         
         return res;
     }
@@ -114,25 +116,24 @@ public class PacketManager {
 
         if(!sc.next().equals(Packet.PACKET_CODES.NUM_PLAYED_GAME))  return null;        
         if(!sc.hasNextInt())    return null;
-        ps.setPlay(sc.nextInt());
+        ps.play = sc.nextInt();
         
         if(!sc.next().equals(Packet.PACKET_CODES.NUM_WIN_GAME))     return null;
         if(!sc.hasNextInt())    return null;
-        ps.setWin(sc.nextInt());
+        ps.win = sc.nextInt();
         
         if(!sc.next().equals(Packet.PACKET_CODES.NUM_LOSE_GAME))    return null;
         if(!sc.hasNextInt())    return null;
-        ps.setLose(sc.nextInt());
+        ps.lose = sc.nextInt();
         
         if(!sc.next().equals(Packet.PACKET_CODES.NUM_DRAW_GAME))    return null;
         if(!sc.hasNextInt())    return null;
-        ps.setDraw(sc.nextInt());
+        ps.draw = sc.nextInt();
         
         res.setData(ps);
         
         return res;
     }
-    
     private static Packet getGamesListPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
@@ -148,69 +149,69 @@ public class PacketManager {
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_ID))  break;
             if(!sc.hasNextInt())    break;
-            gl.setID(sc.nextInt());
+            gl.ID = sc.nextInt();
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_PLAYER_MAX))  break;
             if(!sc.hasNextInt())    break;
-            gl.setMaxCountOfPlayer(sc.nextInt());
+            gl.settings.maxCountOfPlayer = sc.nextInt();
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_PLAYER_CURRECT))  break;
             if(!sc.hasNextInt())    break;
-            gl.setCurrentCountOfPlayer(sc.nextInt());
+            gl.currentCountOfPlayer = sc.nextInt();
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_AREA_SIZE))  break;
             if(!sc.hasNextInt())    break;
-            gl.setXSize(sc.nextInt());
+            gl.settings.XSize = sc.nextInt();
             if(!sc.hasNextInt())    break;
-            gl.setYSize(sc.nextInt());
+            gl.settings.YSize = sc.nextInt();
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_TURN_TIMEOUT))  break;
             if(!sc.hasNextInt())    break;
-            gl.setTurnTime(sc.nextInt());
+            gl.settings.turnTime = sc.nextInt();
             
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_EXTRA_TURN))  break;
             if(!sc.hasNextInt())    break;
-            int f = sc.nextInt();
+            int f = sc.nextInt();            
             if(f == 0)
-                gl.setExtraTurn(false);
+                gl.settings.extraTurn = false;
             else if (f == 1) 
-                gl.setExtraTurn(true);
+                gl.settings.extraTurn = true;
             else
                 break;
             
-            Scanner temp = new Scanner(sc.nextLine());        
+            if(!sc.next().equals(Packet.PACKET_CODES.GAME_USERS_LIST))  break;            
+            String str = sc.nextLine();
+            Scanner temp = new Scanner(str);
             while(temp.hasNext()) {
-                gl.addPlayer(temp.next());
+                gl.players.add(temp.next());
             }
             
             games.add(gl);
         }
-                
+        
         res.setData(games);
         
         return res;
     }
-    
     private static Packet getGameCreatedPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
         
         if(!sc.next().equals(Packet.PACKET_CODES.GAME_CREATED_CODE))    return null;
         Packet res = new Packet(Packet.PACKET_CODES.GAME_CREATED_CODE);
-        
+                
         Integer ID;
         
         if(!sc.next().equals(Packet.PACKET_CODES.GAME_ID))    return null;
         if(!sc.hasNextInt())    return null;
         ID = new Integer(sc.nextInt());
-        
+                
         res.setData(ID);
         
         return res;
     }
-    
     private static Packet getGameCurrentStatePacket(String packet) {
-        
+                
         Scanner sc = new Scanner(packet);
         Scanner temp;
         
@@ -221,21 +222,24 @@ public class PacketManager {
         ArrayList<PlayerState> ps = new ArrayList<PlayerState>();
         
         if(!sc.next().equals(Packet.PACKET_CODES.ACTIVE_USER))    return null;
-        gs.setActivePlayer(sc.next());
-
+        gs.activePlayer = sc.next();
+        
         if(!sc.next().equals(Packet.PACKET_CODES.GAME_USERS_LIST))  return null;
         temp = new Scanner(sc.nextLine());        
         while(temp.hasNext()) {
             ps.add(new PlayerState(temp.next()));
-        }
-        
-        if(!sc.next().equals(Packet.PACKET_CODES.ACTIVE_USER_FLAGS))  return null;
-        temp = new Scanner(sc.nextLine());
-        for(int i = 0; i < ps.size(); i++) {
-            
-            if(!sc.hasNextInt())    return null;
-            int f = temp.nextInt();
-            
+        }        
+   
+        if(!sc.next().equals(Packet.PACKET_CODES.ACTIVE_USER_FLAGS)) return null;
+        temp = new Scanner(sc.nextLine());        
+        for(int i = 0; i < ps.size(); i++) {            
+            int f;
+            try {
+                f = Integer.parseInt(temp.next());
+            } catch (Exception e) {
+                return null;
+            }
+                        
             if(f == 1)
                 ps.get(i).setActive(Boolean.valueOf(true));
             else if (f == 0)
@@ -243,24 +247,28 @@ public class PacketManager {
             else 
                 return null;                
         }
-        
+                
         if(!sc.next().equals(Packet.PACKET_CODES.SCORE))  return null;
         temp = new Scanner(sc.nextLine());
         for(int i = 0; i < ps.size(); i++) {
+            int s;
+            try {
+                s = Integer.parseInt(temp.next());
+            } catch (Exception e) {
+                return null;
+            }
             
-            if(!sc.hasNextInt())    return null;
-            
-            ps.get(i).setScore(temp.nextInt());
+            ps.get(i).setScore(s);
         }
         
-        gs.setPlayerStates(ps);
+        gs.playerStates = ps;
         
         ArrayList<String> mapLines = new ArrayList<String>();
         while(sc.hasNext()) {
             if(!sc.next().equals(Packet.PACKET_CODES.GAME_AREA_LINE))  return null;
             
             if(!sc.hasNext())  return null;            
-            mapLines.add(sc.nextLine());
+            mapLines.add(sc.nextLine().substring(1));
         }
         
         if(mapLines.isEmpty())  return null;
@@ -276,13 +284,10 @@ public class PacketManager {
             }
         }
             
-        gs.setMap(gm);
-        
-        res.setData(gs);
-        
+        gs.map = gm;        
+        res.setData(gs);        
         return res;
     }
-    
     private static Packet getRegistrationPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
@@ -293,16 +298,15 @@ public class PacketManager {
         HashMap<String, String> data = new HashMap<String, String>();
         
         if(!sc.hasNext())    return null;
-        data.put("Login", sc.next());
+        data.put(Packet.LOGIN_KEY, sc.next());
         
         if(!sc.hasNext())    return null;
-        data.put("Password", sc.next());
+        data.put(Packet.PASSWORD_KEY, sc.next());
         
         res.setData(data);
         
         return res;
     }
-    
     private static Packet getLoginPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
@@ -313,16 +317,15 @@ public class PacketManager {
         HashMap<String, String> data = new HashMap<String, String>();
         
         if(!sc.hasNext())    return null;
-        data.put("Login", sc.next());
+        data.put(Packet.LOGIN_KEY, sc.next());
         
         if(!sc.hasNext())    return null;
-        data.put("Password", sc.next());
+        data.put(Packet.PASSWORD_KEY, sc.next());
         
         res.setData(data);
         
         return res;
     }
-    
     private static Packet getNewGamePacket(String packet) {
         
         Scanner sc = new Scanner(packet);
@@ -330,35 +333,34 @@ public class PacketManager {
         if(!sc.next().equals(Packet.PACKET_CODES.NEW_GAME_CMD))    return null;
         Packet res = new Packet(Packet.PACKET_CODES.NEW_GAME_CMD);
         
-        GameLobby gl = new GameLobby();
+        GameSettings gs = new GameSettings();
         
         if(!sc.hasNextInt())    return null;
-        gl.setMaxCountOfPlayer(sc.nextInt());
+        gs.maxCountOfPlayer = sc.nextInt();
         
         if(!sc.hasNextInt())    return null;
-        gl.setXSize(sc.nextInt());
+        gs.XSize = sc.nextInt();
         
         if(!sc.hasNextInt())    return null;
-        gl.setYSize(sc.nextInt());
+        gs.YSize = sc.nextInt();
         
         if(!sc.hasNextInt())    return null;
-        gl.setTurnTime(sc.nextInt());
+        gs.turnTime = sc.nextInt();
         
         if(!sc.hasNextInt())    return null;
         int f = sc.nextInt();
         
         if(f == 0)
-            gl.setExtraTurn(false);
+            gs.extraTurn = false;
         else if(f == 1)
-            gl.setExtraTurn(true);
+            gs.extraTurn = true;
         else
             return null;
         
-        res.setData(gl);
+        res.setData(gs);
         
         return res;
     }
-    
     private static Packet getJoinPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
@@ -375,24 +377,29 @@ public class PacketManager {
         
         return res;
     }
-    
     private static Packet getMakeTurnPacket(String packet) {
         
         Scanner sc = new Scanner(packet);
         
-        if(!sc.next().equals(Packet.PACKET_CODES.MAKE_TURN_CMD))    return null;        
+        if(!sc.next().equals(Packet.PACKET_CODES.MAKE_TURN_CMD)) {
+            return null;        
+        }
         Packet res = new Packet(Packet.PACKET_CODES.MAKE_TURN_CMD);
         
         TurnCoordinate tc = new TurnCoordinate();
         
-        if(!sc.hasNextInt())    return null;
-        tc.x = sc.nextInt();
+        try {
+            tc.x = Integer.parseInt(sc.next());
+        } catch (Exception e) {
+            return null;
+        }        
+        try {
+            tc.y = Integer.parseInt(sc.next());
+        } catch (Exception e) {
+            return null;
+        }
         
-        if(!sc.hasNextInt())    return null;
-        tc.y = sc.nextInt();
-        
-        res.setData(tc);
-        
+        res.setData(tc);        
         return res;
     }
 
@@ -403,41 +410,219 @@ public class PacketManager {
         res.append(packet.getCode());
         
         if(packet.getData() != null) {
-            //TODO
+            if(packet.getCode().equals(Packet.PACKET_CODES.LOGIN_CMD)
+                    || packet.getCode().equals(Packet.PACKET_CODES.REGISTRATION_CMD)) {                
+                res.append(packLogRegPacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.PLAYER_STATISTIC_CODE)) {
+                res.append(packStaticPacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.GAMES_LIST_CODE)) {
+                res.append(packGamesListPacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.GAME_CREATED_CODE)) {
+                res.append(packGameCreatedPacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.NEW_GAME_CMD)) {
+                res.append(packNewGamePacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.MAKE_TURN_CMD)) {
+                res.append(packMakeTurnPacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.CURRENT_STATE_CODE)) {
+                res.append(packCurrentStatePacket(packet));
+                
+            } else if(packet.getCode().equals(Packet.PACKET_CODES.JOIN_TO_GAME_CMD)) {
+                res.append(packJoinPacket(packet));
+            }
         } else {
             res.append("\n");
         }
-
+        
         res.append("\n\n");
         
         return res.toString();
     }
+    
+    private static String packLogRegPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        @SuppressWarnings("unchecked")
+        HashMap<String, String> data = (HashMap<String, String>) packet.getData();
+        res.append(" " + data.get(Packet.LOGIN_KEY));
+        res.append(" " + data.get(Packet.PASSWORD_KEY));
+        res.append("\n");
+        
+        return res.toString();
+    }
+    private static String packStaticPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        PlayerStatistic data = (PlayerStatistic) packet.getData();
+        
+        res.append("\n");
+        res.append(Packet.PACKET_CODES.LOGIN_CMD + " " + data.getNickname() + "\n");
+        res.append(Packet.PACKET_CODES.NUM_PLAYED_GAME + " " + data.play + "\n");
+        res.append(Packet.PACKET_CODES.NUM_WIN_GAME    + " " + data.win  + "\n");
+        res.append(Packet.PACKET_CODES.NUM_LOSE_GAME   + " " + data.lose + "\n");
+        res.append(Packet.PACKET_CODES.NUM_DRAW_GAME   + " " + data.draw + "\n");
 
-    public static Packet readPacketFromStream(BufferedReader in) {
+        return res.toString();
+    }
+    private static String packGamesListPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        @SuppressWarnings("unchecked")
+        ArrayList<GameLobby> data = (ArrayList<GameLobby>) packet.getData();
+                
+        res.append("\n");
+        
+        for(int i = 0; i < data.size(); i++) {
+            GameLobby gl = data.get(i);
+
+            res.append(Packet.PACKET_CODES.GAME_ID + " " + gl.ID + "\n");
+            res.append(Packet.PACKET_CODES.GAME_PLAYER_MAX + " " + gl.settings.maxCountOfPlayer + "\n");
+            res.append(Packet.PACKET_CODES.GAME_PLAYER_CURRECT + " " + gl.currentCountOfPlayer + "\n");
+            res.append(Packet.PACKET_CODES.GAME_AREA_SIZE + " " + gl.settings.XSize + " " + gl.settings.YSize + "\n");
+            res.append(Packet.PACKET_CODES.GAME_TURN_TIMEOUT + " " + gl.settings.turnTime + "\n");
+            res.append(Packet.PACKET_CODES.GAME_EXTRA_TURN + " ");
+            if(gl.settings.extraTurn) {
+                res.append("1\n");                
+            }
+            else {
+                res.append("0\n");
+            }
+            res.append(Packet.PACKET_CODES.GAME_USERS_LIST + " ");
+            for(int j = 0; j < gl.players.size(); j++) {
+                res.append(gl.players.get(j));
+                if(j != gl.players.size() - 1) {
+                    res.append(" ");
+                }
+            }
+            res.append("\n");            
+            
+            if(i != data.size() - 1) {
+                res.append("\n");
+            }
+        }
+        
+        return res.toString();
+    }
+    private static String packGameCreatedPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        Integer ID = (Integer) packet.getData();
+        res.append("\n");
+        res.append(Packet.PACKET_CODES.GAME_ID + " " + ID + "\n");
+                
+        return res.toString();
+    }
+    private static String packNewGamePacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        GameSettings gs = (GameSettings) packet.getData();
+        
+        res.append(" " + gs.maxCountOfPlayer);
+        res.append(" " + gs.XSize);
+        res.append(" " + gs.YSize);
+        res.append(" " + gs.turnTime);
+        if(gs.extraTurn) {
+            res.append(" 1\n");
+        } else {
+            res.append(" 0\n");
+        }
+        
+        return res.toString();
+    }
+    private static String packMakeTurnPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        TurnCoordinate tc = (TurnCoordinate) packet.getData();
+        
+        res.append(" " + tc.x);
+        res.append(" " + tc.y);
+        res.append("\n");
+        
+        return res.toString();
+    }
+    private static String packCurrentStatePacket(Packet packet) {
+        
+        StringBuilder sb = new StringBuilder();        
+        
+        ServerGameState sgs = (ServerGameState) packet.getData();        
+        sb.append("\n");
+        
+        sb.append(Packet.PACKET_CODES.ACTIVE_USER + " " + sgs.activePlayer + "\n");
+        
+        sb.append(Packet.PACKET_CODES.GAME_USERS_LIST);
+        for(PlayerState ps : sgs.playerStates) {
+            sb.append(" " + ps.getNickname());
+        }
+        sb.append("\n");
+        
+        sb.append(Packet.PACKET_CODES.ACTIVE_USER_FLAGS);
+        for(PlayerState ps : sgs.playerStates) {
+            if(ps.isActive()) {
+                sb.append(" 1");
+            } else {
+                sb.append(" 0");
+            }
+        }
+        sb.append("\n");
+        
+        sb.append(Packet.PACKET_CODES.SCORE);
+        for(PlayerState ps : sgs.playerStates) {
+            sb.append(" " + ps.getScore());
+        }
+        sb.append("\n");
+        
+        for(int j = 0; j < sgs.map.getYSize(); j++) {
+            sb.append(Packet.PACKET_CODES.GAME_AREA_LINE + " ");
+            for(int i = 0; i < sgs.map.getXSize(); i++) {
+                sb.append(sgs.map.getCell(i, j).getCode());
+            }
+            sb.append("\n");
+        }
+                
+        return sb.toString();
+    }
+    private static String packJoinPacket(Packet packet) {
+        StringBuilder res = new StringBuilder();
+        
+        Integer ID = (Integer) packet.getData();
+        res.append(" " + ID + "\n");
+                
+        return res.toString();        
+    }
+    
+    public static Packet readPacketFromStream(BufferedReader in) throws IOException {
         
         StringBuilder sb = new StringBuilder();
         String line;
         
-        try {
-            while(true) {                        
+        while(true) {                        
+            line = in.readLine();
+            if(line.isEmpty()) {
+                
+                sb.append("\n");
                 line = in.readLine();
+                
                 if(line.isEmpty()) {
-                    
                     sb.append("\n");
-                    line = in.readLine();
-                    
-                    if(line.isEmpty()) {
-                        sb.append("\n");
-                        break;
-                    }
-                    
+                    break;
                 } else {
                     sb.append(line + "\n");
                 }
+                
+            } else {
+                sb.append(line + "\n");
             }
-        } catch(IOException e) {
-            return null;
-        }         
+        }        
+        
+        //XXX Read from socket
+        System.out.println("== READ ==");
+        System.out.println(sb.toString());
+        System.out.println("== END ==");
         
         return unpack(sb.toString());
     }

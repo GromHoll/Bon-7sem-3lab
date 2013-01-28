@@ -18,7 +18,7 @@ public class PlayerState {
     public Integer getScore() {
         return score;
     }
-    public Boolean getActive() {
+    public Boolean isActive() {
         return active;
     }
 
