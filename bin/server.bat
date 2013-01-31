@@ -1,0 +1,1 @@
+java -jar DotServer.jar 5555
